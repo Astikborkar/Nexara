@@ -20,6 +20,9 @@ Managing manual sales activity creates linear effort; engineering autonomous rev
 Rather than managing standard sales pods, my background focuses on building scalable revenue systems that combine AI architecture, automated outbound orchestration, CRM schema engineering, and rep productivity tools.
 
 ### Core Systems Built & Demonstrated:
+- **Live Interactive Working Link:** [https://astikborkar.github.io/Nexara/](https://astikborkar.github.io/Nexara/)
+- **GitHub Repository:** [https://github.com/Astikborkar/Nexara.git](https://github.com/Astikborkar/Nexara.git)
+
 1. **AI-Driven Prospecting & Intent Harvesting:** Automating ICP lead discovery through intent signal monitoring (6sense, hiring alerts for SDR/RevOps roles, tech stack migrations) combined with 15-parameter LLM fit scoring (0–100 score).
 2. **Automated Omnichannel Outbound:** Multi-touch sequences across Email, LinkedIn, and AI Voice with dynamic spintax, LLM hyper-personalization based on recent prospect activity, and real-time response sentiment classification.
 3. **CRM & Pipeline Architecture:** Zero-latency bi-directional sync (HubSpot & Salesforce) with deterministic stage transition triggers that eliminate dropped leads and accurately calculate pipeline velocity.
