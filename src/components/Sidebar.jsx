@@ -8,8 +8,7 @@ import {
   TrendingUp, 
   BookOpen, 
   Cpu, 
-  Sparkles,
-  CheckCircle2
+  ShieldCheck
 } from 'lucide-react';
 
 export default function Sidebar({ activeTab, setActiveTab }) {
@@ -21,14 +20,14 @@ export default function Sidebar({ activeTab, setActiveTab }) {
     { id: 'productivity', label: 'Rep Productivity & AI Copilot', icon: Bot, badge: '+18.5h/wk' },
     { id: 'kpi', label: 'KPI Dashboards & Attribution', icon: TrendingUp, badge: 'Live ROI' },
     { id: 'playbooks', label: 'Playbooks & Conversion Opt.', icon: BookOpen, badge: 'Battlecards' },
-    { id: 'architecture', label: 'Revenue Infrastructure Leverage', icon: Cpu, badge: 'System Architecture' }
+    { id: 'architecture', label: 'Revenue Infrastructure Leverage', icon: Cpu, badge: 'Blueprint' }
   ];
 
   return (
     <aside style={{
       width: '280px',
-      background: 'rgba(15, 23, 42, 0.95)',
-      borderRight: '1px solid var(--border-color)',
+      background: 'rgba(5, 8, 7, 0.98)',
+      borderRight: '1px solid rgba(0, 230, 153, 0.15)',
       display: 'flex',
       flexDirection: 'column',
       padding: '24px 16px',
@@ -36,13 +35,13 @@ export default function Sidebar({ activeTab, setActiveTab }) {
     }}>
       <div style={{ padding: '0 12px 16px 12px' }}>
         <p style={{
-          fontSize: '0.7rem',
+          fontSize: '0.68rem',
           fontWeight: '700',
-          color: 'var(--text-muted)',
+          color: '#00e699',
           textTransform: 'uppercase',
-          letterSpacing: '1px'
+          letterSpacing: '1.5px'
         }}>
-          Revenue System Navigation
+          VERIFIED SYSTEM NAVIGATION
         </p>
       </div>
 
@@ -60,8 +59,8 @@ export default function Sidebar({ activeTab, setActiveTab }) {
                 justifyContent: 'space-between',
                 padding: '11px 14px',
                 borderRadius: 'var(--radius-md)',
-                background: isActive ? 'linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(14, 165, 233, 0.15) 100%)' : 'transparent',
-                border: isActive ? '1px solid var(--border-color-glow)' : '1px solid transparent',
+                background: isActive ? 'linear-gradient(135deg, rgba(0, 230, 153, 0.2) 0%, rgba(16, 185, 129, 0.1) 100%)' : 'transparent',
+                border: isActive ? '1px solid rgba(0, 230, 153, 0.4)' : '1px solid transparent',
                 color: isActive ? '#ffffff' : 'var(--text-muted)',
                 cursor: 'pointer',
                 textAlign: 'left',
@@ -72,7 +71,7 @@ export default function Sidebar({ activeTab, setActiveTab }) {
               }}
               onMouseEnter={(e) => {
                 if (!isActive) {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                  e.currentTarget.style.background = 'rgba(0, 230, 153, 0.05)';
                   e.currentTarget.style.color = '#ffffff';
                 }
               }}
@@ -84,7 +83,7 @@ export default function Sidebar({ activeTab, setActiveTab }) {
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <Icon size={18} color={isActive ? '#818cf8' : '#9ca3af'} />
+                <Icon size={18} color={isActive ? '#00e699' : '#64748b'} />
                 <span>{item.label}</span>
               </div>
               {item.badge && (
@@ -92,8 +91,8 @@ export default function Sidebar({ activeTab, setActiveTab }) {
                   fontSize: '0.68rem',
                   padding: '2px 7px',
                   borderRadius: '10px',
-                  background: isActive ? 'rgba(99, 102, 241, 0.4)' : 'rgba(255, 255, 255, 0.07)',
-                  color: isActive ? '#ffffff' : 'var(--text-dim)',
+                  background: isActive ? 'rgba(0, 230, 153, 0.3)' : 'rgba(255, 255, 255, 0.06)',
+                  color: isActive ? '#33ffbb' : 'var(--text-dim)',
                   fontWeight: '600'
                 }}>
                   {item.badge}
@@ -106,15 +105,15 @@ export default function Sidebar({ activeTab, setActiveTab }) {
 
       {/* Bottom Profile / Callout Box */}
       <div style={{ marginTop: 'auto', paddingTop: '20px' }}>
-        <div className="glass-panel" style={{ padding: '16px', borderRadius: 'var(--radius-md)' }}>
+        <div className="glass-panel" style={{ padding: '16px', borderRadius: 'var(--radius-md)', borderColor: 'rgba(0, 230, 153, 0.2)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-            <Sparkles size={16} color="#10b981" />
-            <span style={{ fontSize: '0.8rem', fontWeight: '700', color: '#6ee7b7' }}>
-              System Leverage Focus
+            <ShieldCheck size={16} color="#00e699" />
+            <span style={{ fontSize: '0.78rem', fontWeight: '800', color: '#00e699', letterSpacing: '0.5px' }}>
+              RESEARCH ACCESS PORTAL
             </span>
           </div>
           <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', lineHeight: '1.4' }}>
-            Designed to replace manual SDR management with scalable, autonomous AI revenue pipelines.
+            Nexara Labs USA platform engineered for verified revenue infrastructure leverage.
           </p>
         </div>
       </div>
