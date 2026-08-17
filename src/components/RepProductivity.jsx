@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { Bot, Sparkles, FileText, CheckCircle2, MessageSquare, PhoneCall, ArrowRight, Zap, Play, RefreshCw, Database, Send } from 'lucide-react';
+import { sendEmailApi, logCrmApi } from '../api/client';
+import { Bot, Sparkles, FileText, CheckCircle2, PhoneCall, Zap, Play, RefreshCw, Database, Send } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 export default function RepProductivity() {
   const [activeTab, setActiveTab] = useState('brief');
-  const [isGeneratingBrief, setIsGeneratingBrief] = useState(false);
-  const [briefGenerated, setBriefGenerated] = useState(true);
   const [activeCallSim, setActiveCallSim] = useState(false);
   const [callTranscript, setCallTranscript] = useState([
     { speaker: 'Prospect (Alex)', text: 'We like the automated outbound idea, but our security team is strict about SOC2 and storing CRM data in third-party LLMs.' }
@@ -32,32 +31,36 @@ export default function RepProductivity() {
     }, 1200);
   };
 
-  const handleApproveSendEmail = () => {
+  const handleApproveSendEmail = async () => {
     setIsSendingEmail(true);
-    setActionToast('Connecting to SendGrid API & Dispatching Email to alex.thorne@cloudscalelogic.io...');
+    setActionToast('Connecting to Express API & Dispatching Email via SendGrid...');
 
-    setTimeout(() => {
-      setIsSendingEmail(false);
-      setEmailSent(true);
-      setActionToast('✅ Follow-up Email Successfully Sent to Alex Thorne (VP Sales Ops)!');
-      
-      confetti({
-        particleCount: 70,
-        spread: 65,
-        origin: { y: 0.6 }
-      });
-    }, 1400);
+    const res = await sendEmailApi(
+      'alex.thorne@cloudscalelogic.io',
+      'Nexara Architecture & SOC2 Security Overview for CloudScale Logic',
+      'Great speaking today...'
+    );
+
+    setIsSendingEmail(false);
+    setEmailSent(true);
+    setActionToast(res?.message || '✅ Follow-up Email Successfully Sent to Alex Thorne (VP Sales Ops)!');
+    
+    confetti({
+      particleCount: 70,
+      spread: 65,
+      origin: { y: 0.6 }
+    });
   };
 
-  const handleLogToHubSpot = () => {
+  const handleLogToHubSpot = async () => {
     setIsLoggingCrm(true);
-    setActionToast('Executing HubSpot Bi-Directional Webhook Sync...');
+    setActionToast('Executing HubSpot Bi-Directional Webhook Sync via API...');
 
-    setTimeout(() => {
-      setIsLoggingCrm(false);
-      setCrmLogged(true);
-      setActionToast('✅ Meeting Brief & Email Transcript Logged to HubSpot CRM (Deal ID #849204)!');
-    }, 1200);
+    const res = await logCrmApi('d1', 'Post-Call Followup Brief Logged');
+
+    setIsLoggingCrm(false);
+    setCrmLogged(true);
+    setActionToast(res?.message || '✅ Meeting Brief & Email Transcript Logged to HubSpot CRM (Deal ID #849204)!');
   };
 
   return (
@@ -66,7 +69,7 @@ export default function RepProductivity() {
       <div className="glass-panel" style={{ padding: '24px', borderRadius: 'var(--radius-md)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-            <Bot size={20} color="#c084fc" />
+            <Bot size={20} color="#00e699" />
             <h2 style={{ fontSize: '1.4rem', fontWeight: '800' }}>
               Rep Productivity Systems & AI SDR Copilot
             </h2>
@@ -76,16 +79,16 @@ export default function RepProductivity() {
           </p>
         </div>
 
-        <div className="badge badge-purple" style={{ padding: '8px 14px', fontSize: '0.82rem' }}>
+        <div className="badge badge-accent" style={{ padding: '8px 14px', fontSize: '0.82rem' }}>
           ⚡ Saves 18.5 Hours per Rep / Week
         </div>
       </div>
 
       {/* Toast Notification Alert */}
       {actionToast && (
-        <div className="glass-panel-glow" style={{ padding: '14px 20px', borderRadius: 'var(--radius-sm)', background: 'rgba(99, 102, 241, 0.15)', borderColor: '#818cf8', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <Sparkles size={16} color="#818cf8" />
-          <span style={{ fontSize: '0.88rem', color: '#e0e7ff', fontWeight: '600' }}>{actionToast}</span>
+        <div className="glass-panel-glow" style={{ padding: '14px 20px', borderRadius: 'var(--radius-sm)', background: 'rgba(0, 230, 153, 0.15)', borderColor: '#00e699', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <Sparkles size={16} color="#00e699" />
+          <span style={{ fontSize: '0.88rem', color: '#33ffbb', fontWeight: '600' }}>{actionToast}</span>
         </div>
       )}
 
@@ -100,8 +103,8 @@ export default function RepProductivity() {
               borderRadius: 'var(--radius-sm)',
               fontSize: '0.88rem',
               fontWeight: '700',
-              border: activeTab === 'brief' ? '1px solid #c084fc' : '1px solid transparent',
-              background: activeTab === 'brief' ? 'rgba(168, 85, 247, 0.2)' : 'transparent',
+              border: activeTab === 'brief' ? '1px solid #00e699' : '1px solid transparent',
+              background: activeTab === 'brief' ? 'rgba(0, 230, 153, 0.15)' : 'transparent',
               color: activeTab === 'brief' ? '#ffffff' : 'var(--text-muted)',
               cursor: 'pointer',
               display: 'flex',
@@ -110,7 +113,7 @@ export default function RepProductivity() {
               textAlign: 'left'
             }}
           >
-            <FileText size={16} color="#c084fc" /> Pre-Meeting Briefs
+            <FileText size={16} color="#00e699" /> Pre-Meeting Briefs
           </button>
 
           <button
@@ -120,8 +123,8 @@ export default function RepProductivity() {
               borderRadius: 'var(--radius-sm)',
               fontSize: '0.88rem',
               fontWeight: '700',
-              border: activeTab === 'copilot' ? '1px solid #c084fc' : '1px solid transparent',
-              background: activeTab === 'copilot' ? 'rgba(168, 85, 247, 0.2)' : 'transparent',
+              border: activeTab === 'copilot' ? '1px solid #00e699' : '1px solid transparent',
+              background: activeTab === 'copilot' ? 'rgba(0, 230, 153, 0.15)' : 'transparent',
               color: activeTab === 'copilot' ? '#ffffff' : 'var(--text-muted)',
               cursor: 'pointer',
               display: 'flex',
@@ -140,8 +143,8 @@ export default function RepProductivity() {
               borderRadius: 'var(--radius-sm)',
               fontSize: '0.88rem',
               fontWeight: '700',
-              border: activeTab === 'summary' ? '1px solid #c084fc' : '1px solid transparent',
-              background: activeTab === 'summary' ? 'rgba(168, 85, 247, 0.2)' : 'transparent',
+              border: activeTab === 'summary' ? '1px solid #00e699' : '1px solid transparent',
+              background: activeTab === 'summary' ? 'rgba(0, 230, 153, 0.15)' : 'transparent',
               color: activeTab === 'summary' ? '#ffffff' : 'var(--text-muted)',
               cursor: 'pointer',
               display: 'flex',
@@ -150,7 +153,7 @@ export default function RepProductivity() {
               textAlign: 'left'
             }}
           >
-            <Sparkles size={16} color="#6ee7b7" /> Auto-Followup Generator
+            <Sparkles size={16} color="#00e699" /> Auto-Followup Generator
           </button>
         </div>
 
@@ -173,7 +176,7 @@ export default function RepProductivity() {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <div style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '16px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>
-                  <h4 style={{ fontSize: '0.88rem', fontWeight: '700', color: '#a5b4fc', marginBottom: '8px' }}>
+                  <h4 style={{ fontSize: '0.88rem', fontWeight: '700', color: '#00e699', marginBottom: '8px' }}>
                     1. Account & Tech Context
                   </h4>
                   <ul style={{ fontSize: '0.82rem', color: 'var(--text-muted)', paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -184,7 +187,7 @@ export default function RepProductivity() {
                 </div>
 
                 <div style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '16px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>
-                  <h4 style={{ fontSize: '0.88rem', fontWeight: '700', color: '#6ee7b7', marginBottom: '8px' }}>
+                  <h4 style={{ fontSize: '0.88rem', fontWeight: '700', color: '#33ffbb', marginBottom: '8px' }}>
                     2. Recommended Call Agenda
                   </h4>
                   <ul style={{ fontSize: '0.82rem', color: 'var(--text-muted)', paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -195,11 +198,11 @@ export default function RepProductivity() {
                 </div>
               </div>
 
-              <div style={{ background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%)', border: '1px solid rgba(168, 85, 247, 0.3)', padding: '16px', borderRadius: 'var(--radius-sm)' }}>
-                <h4 style={{ fontSize: '0.88rem', fontWeight: '700', color: '#d8b4fe', marginBottom: '6px' }}>
+              <div style={{ background: 'linear-gradient(135deg, rgba(0, 230, 153, 0.1) 0%, rgba(14, 165, 233, 0.1) 100%)', border: '1px solid rgba(0, 230, 153, 0.3)', padding: '16px', borderRadius: 'var(--radius-sm)' }}>
+                <h4 style={{ fontSize: '0.88rem', fontWeight: '700', color: '#00e699', marginBottom: '6px' }}>
                   🎯 Predicted Key Concern / Landmine
                 </h4>
-                <p style={{ fontSize: '0.85rem', color: '#e0e7ff' }}>
+                <p style={{ fontSize: '0.85rem', color: '#e2e8f0' }}>
                   Alex recently posted on LinkedIn about CRM data hygiene during migrations. Be prepared to show how Nexara validates email syntax & dedupes records before syncing back to HubSpot.
                 </p>
               </div>
@@ -212,7 +215,7 @@ export default function RepProductivity() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                   <h3 style={{ fontSize: '1.2rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <PhoneCall size={18} color="#10b981" /> Live Call Voice Assistant & Objection Handler
+                    <PhoneCall size={18} color="#00e699" /> Live Call Voice Assistant & Objection Handler
                   </h3>
                   <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
                     Listens to transcript in real-time and pops instant battlecard talking points onto the rep's screen.
@@ -225,21 +228,21 @@ export default function RepProductivity() {
               </div>
 
               {/* Transcript Stream Box */}
-              <div style={{ background: 'rgba(15, 23, 42, 0.9)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', padding: '18px', display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '400px', overflowY: 'auto' }}>
+              <div style={{ background: 'rgba(11, 18, 15, 0.95)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', padding: '18px', display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '400px', overflowY: 'auto' }}>
                 {callTranscript.map((t, idx) => (
                   <div 
                     key={idx} 
                     style={{
-                      background: t.isAi ? 'rgba(168, 85, 247, 0.15)' : 'rgba(255, 255, 255, 0.04)',
-                      border: t.isAi ? '1px solid rgba(168, 85, 247, 0.4)' : '1px solid var(--border-color)',
+                      background: t.isAi ? 'rgba(0, 230, 153, 0.15)' : 'rgba(255, 255, 255, 0.04)',
+                      border: t.isAi ? '1px solid rgba(0, 230, 153, 0.4)' : '1px solid var(--border-color)',
                       padding: '12px 16px',
                       borderRadius: 'var(--radius-sm)'
                     }}
                   >
-                    <span style={{ fontSize: '0.75rem', fontWeight: '800', color: t.isAi ? '#d8b4fe' : '#38bdf8', display: 'block', marginBottom: '4px' }}>
+                    <span style={{ fontSize: '0.75rem', fontWeight: '800', color: t.isAi ? '#00e699' : '#38bdf8', display: 'block', marginBottom: '4px' }}>
                       {t.speaker}
                     </span>
-                    <p style={{ fontSize: '0.85rem', color: t.isAi ? '#f3e8ff' : '#e2e8f0', lineHeight: '1.5' }}>
+                    <p style={{ fontSize: '0.85rem', color: t.isAi ? '#33ffbb' : '#e2e8f0', lineHeight: '1.5' }}>
                       {t.text}
                     </p>
                   </div>
@@ -253,14 +256,14 @@ export default function RepProductivity() {
             <div className="glass-panel" style={{ padding: '28px', borderRadius: 'var(--radius-md)', display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div>
                 <h3 style={{ fontSize: '1.2rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Sparkles size={18} color="#6ee7b7" /> Autonomous 1-Click Post-Call Follow-up Draft
+                  <Sparkles size={18} color="#00e699" /> Autonomous 1-Click Post-Call Follow-up Draft
                 </h3>
                 <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
                   Synthesizes call transcript, extracts action items, and drafts follow-up email ready for rep approval.
                 </p>
               </div>
 
-              <div style={{ background: 'rgba(15, 23, 42, 0.8)', padding: '20px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)', fontFamily: 'var(--font-mono)', fontSize: '0.85rem', color: '#e0e7ff', lineHeight: '1.6' }}>
+              <div style={{ background: 'rgba(11, 18, 15, 0.9)', padding: '20px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)', fontFamily: 'var(--font-mono)', fontSize: '0.85rem', color: '#e2e8f0', lineHeight: '1.6' }}>
                 <p><strong>Subject:</strong> Nexara Architecture & SOC2 Security Overview for CloudScale Logic</p>
                 <br />
                 <p>Hi Alex,</p>
@@ -282,10 +285,9 @@ export default function RepProductivity() {
                 <button
                   onClick={handleApproveSendEmail}
                   disabled={isSendingEmail}
-                  className="btn btn-accent"
+                  className="btn btn-primary"
                   style={{
-                    opacity: emailSent ? 0.9 : 1,
-                    background: emailSent ? 'linear-gradient(135deg, #059669 0%, #047857 100%)' : undefined
+                    opacity: emailSent ? 0.9 : 1
                   }}
                 >
                   {isSendingEmail ? (
@@ -303,14 +305,14 @@ export default function RepProductivity() {
                   disabled={isLoggingCrm}
                   className="btn btn-secondary"
                   style={{
-                    borderColor: crmLogged ? '#6366f1' : undefined,
-                    color: crmLogged ? '#a5b4fc' : undefined
+                    borderColor: crmLogged ? '#00e699' : undefined,
+                    color: crmLogged ? '#00e699' : undefined
                   }}
                 >
                   {isLoggingCrm ? (
                     <RefreshCw className="spin" size={16} />
                   ) : crmLogged ? (
-                    <CheckCircle2 size={16} color="#818cf8" />
+                    <CheckCircle2 size={16} color="#00e699" />
                   ) : (
                     <Database size={16} />
                   )}

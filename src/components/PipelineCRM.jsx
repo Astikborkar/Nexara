@@ -1,12 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { mockPipelineDeals } from '../data/mockData';
-import { Kanban, DollarSign, ArrowRight, ShieldCheck, RefreshCw, CheckCircle2, ChevronRight, Zap } from 'lucide-react';
+import { fetchDeals, updateDealStageApi } from '../api/client';
+import { Kanban, ArrowRight, CheckCircle2, Zap } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 export default function PipelineCRM() {
   const [deals, setDeals] = useState(mockPipelineDeals);
   const [selectedDeal, setSelectedDeal] = useState(mockPipelineDeals[0]);
   const [syncToast, setSyncToast] = useState('');
+
+  useEffect(() => {
+    async function loadDeals() {
+      const data = await fetchDeals();
+      if (data && data.length > 0) {
+        setDeals(data);
+        setSelectedDeal(data[0]);
+      }
+    }
+    loadDeals();
+  }, []);
 
   const stages = [
     "Discovered",
@@ -17,27 +29,34 @@ export default function PipelineCRM() {
     "Closed Won"
   ];
 
-  const handleAdvanceStage = (dealId) => {
-    const updated = deals.map(d => {
-      if (d.id === dealId) {
-        const currentIndex = stages.indexOf(d.stage);
-        if (currentIndex < stages.length - 1) {
-          const newStage = stages[currentIndex + 1];
-          if (newStage === 'Closed Won') {
-            confetti({ particleCount: 80, spread: 70, origin: { y: 0.5 } });
-          }
+  const handleAdvanceStage = async (dealId) => {
+    const targetDeal = deals.find(d => d.id === dealId);
+    if (!targetDeal) return;
+
+    const currentIndex = stages.indexOf(targetDeal.stage);
+    if (currentIndex < stages.length - 1) {
+      const newStage = stages[currentIndex + 1];
+      
+      // Update backend via API
+      const updatedBackend = await updateDealStageApi(dealId, newStage);
+
+      const updatedDeals = deals.map(d => {
+        if (d.id === dealId) {
           return { ...d, stage: newStage, probability: Math.min(100, d.probability + 20) };
         }
+        return d;
+      });
+
+      setDeals(updatedDeals);
+      setSelectedDeal(updatedDeals.find(d => d.id === dealId));
+
+      if (newStage === 'Closed Won') {
+        confetti({ particleCount: 80, spread: 70, origin: { y: 0.5 } });
       }
-      return d;
-    });
 
-    setDeals(updated);
-    const targetDeal = updated.find(d => d.id === dealId);
-    setSelectedDeal(targetDeal);
-
-    setSyncToast(`HubSpot & Salesforce Bi-Directional Sync Triggered for ${targetDeal.company} -> Stage: ${targetDeal.stage}`);
-    setTimeout(() => setSyncToast(''), 3500);
+      setSyncToast(`HubSpot & Salesforce Bi-Directional Webhook Triggered for ${targetDeal.company} -> Stage: ${newStage}`);
+      setTimeout(() => setSyncToast(''), 3500);
+    }
   };
 
   const totalValue = deals.reduce((acc, d) => acc + d.value, 0);
@@ -48,7 +67,7 @@ export default function PipelineCRM() {
       <div className="glass-panel" style={{ padding: '24px', borderRadius: 'var(--radius-md)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-            <Kanban size={20} color="#34d399" />
+            <Kanban size={20} color="#00e699" />
             <h2 style={{ fontSize: '1.4rem', fontWeight: '800' }}>
               CRM Architecture & Automated Pipeline Kanban
             </h2>
@@ -60,15 +79,15 @@ export default function PipelineCRM() {
 
         <div style={{ textAlign: 'right' }}>
           <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Active Pipeline Value</span>
-          <h3 style={{ fontSize: '1.6rem', fontWeight: '800', color: '#6ee7b7' }}>${totalValue.toLocaleString()}</h3>
+          <h3 style={{ fontSize: '1.6rem', fontWeight: '800', color: '#00e699' }}>${totalValue.toLocaleString()}</h3>
         </div>
       </div>
 
       {/* Sync Toast Alert */}
       {syncToast && (
-        <div className="glass-panel-glow" style={{ padding: '12px 20px', borderRadius: 'var(--radius-sm)', background: 'rgba(16, 185, 129, 0.15)', borderColor: '#10b981', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <CheckCircle2 size={16} color="#6ee7b7" />
-          <span style={{ fontSize: '0.85rem', color: '#6ee7b7', fontWeight: '600' }}>{syncToast}</span>
+        <div className="glass-panel-glow" style={{ padding: '12px 20px', borderRadius: 'var(--radius-sm)', background: 'rgba(0, 230, 153, 0.15)', borderColor: '#00e699', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <CheckCircle2 size={16} color="#00e699" />
+          <span style={{ fontSize: '0.85rem', color: '#33ffbb', fontWeight: '600' }}>{syncToast}</span>
         </div>
       )}
 
@@ -88,7 +107,7 @@ export default function PipelineCRM() {
             <div
               key={stage}
               style={{
-                background: 'rgba(15, 23, 42, 0.7)',
+                background: 'rgba(11, 18, 15, 0.85)',
                 borderRadius: 'var(--radius-md)',
                 padding: '14px',
                 border: '1px solid var(--border-color)',
@@ -118,14 +137,14 @@ export default function PipelineCRM() {
                       style={{
                         padding: '12px',
                         borderRadius: 'var(--radius-sm)',
-                        border: isSelected ? '1px solid #34d399' : '1px solid var(--border-color)',
-                        background: isSelected ? 'rgba(31, 41, 55, 0.9)' : 'var(--bg-card)',
+                        border: isSelected ? '1px solid #00e699' : '1px solid var(--border-color)',
+                        background: isSelected ? 'rgba(18, 28, 24, 0.95)' : 'var(--bg-card)',
                         cursor: 'pointer'
                       }}
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
                         <strong style={{ fontSize: '0.88rem', color: '#fff' }}>{deal.company}</strong>
-                        <span style={{ fontSize: '0.8rem', fontWeight: '700', color: '#6ee7b7' }}>${(deal.value / 1000).toFixed(0)}k</span>
+                        <span style={{ fontSize: '0.8rem', fontWeight: '700', color: '#00e699' }}>${(deal.value / 1000).toFixed(0)}k</span>
                       </div>
 
                       <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px' }}>
@@ -141,9 +160,9 @@ export default function PipelineCRM() {
                               handleAdvanceStage(deal.id);
                             }}
                             style={{
-                              background: 'rgba(52, 211, 153, 0.15)',
-                              border: '1px solid rgba(52, 211, 153, 0.3)',
-                              color: '#6ee7b7',
+                              background: 'rgba(0, 230, 153, 0.15)',
+                              border: '1px solid rgba(0, 230, 153, 0.3)',
+                              color: '#00e699',
                               padding: '2px 6px',
                               borderRadius: '4px',
                               cursor: 'pointer',
@@ -177,7 +196,7 @@ export default function PipelineCRM() {
       {selectedDeal && (
         <div className="glass-panel" style={{ padding: '24px', borderRadius: 'var(--radius-md)' }}>
           <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Zap size={16} color="#34d399" /> CRM Automation & Stage Audit for {selectedDeal.company}
+            <Zap size={16} color="#00e699" /> CRM Automation & Stage Audit for {selectedDeal.company}
           </h3>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
@@ -193,12 +212,12 @@ export default function PipelineCRM() {
 
             <div style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>
               <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Lead Attribution Source</span>
-              <p style={{ fontSize: '0.88rem', fontWeight: '700', color: '#a5b4fc', marginTop: '4px' }}>{selectedDeal.source}</p>
+              <p style={{ fontSize: '0.88rem', fontWeight: '700', color: '#00e699', marginTop: '4px' }}>{selectedDeal.source}</p>
             </div>
 
             <div style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>
               <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>CRM Sync Protocol</span>
-              <p style={{ fontSize: '0.88rem', fontWeight: '700', color: '#6ee7b7', marginTop: '4px' }}>HubSpot Webhook: 200 OK</p>
+              <p style={{ fontSize: '0.88rem', fontWeight: '700', color: '#33ffbb', marginTop: '4px' }}>HubSpot Webhook: 200 OK</p>
             </div>
           </div>
         </div>
